@@ -250,10 +250,13 @@ function jsonpRequest(params, timeoutMs = 15000){
     }, timeoutMs);
 
     window[callbackName] = (data) => {
-      if(settled) return;
-      settled = true;
-      cleanup();
-      resolve(data);
+    if(settled) return;
+
+    alert("JSONP received successfully");
+
+    settled = true;
+    cleanup();
+    resolve(data);
     };
 
     script.onerror = () => {
