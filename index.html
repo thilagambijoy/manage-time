@@ -184,6 +184,21 @@
 <script>
 (function(){
 alert("NEW JAVASCRIPT LOADED");
+window.onerror = function(message, source, lineno, colno, error) {
+  alert(
+    "JS ERROR:\n" +
+    message +
+    "\nLine: " + lineno +
+    "\nColumn: " + colno
+  );
+};
+
+window.addEventListener('unhandledrejection', function(event) {
+  alert(
+    "PROMISE ERROR:\n" +
+    (event.reason ? event.reason.toString() : "Unknown error")
+  );
+});
 /* ======================= CONFIG ======================= *
  * WEB_APP_URL: your Apps Script deployment URL, ending in /exec
  * Get it from: Deploy > Manage deployments (after deploying AppsScript_Code.gs)
@@ -273,6 +288,7 @@ function jsonpRequest(params, timeoutMs = 15000){
 }
 
 async function loadEntries(){
+  alert("LOAD ENTRIES STARTED");
   setStatus('saving', 'Loading…');
   try{
     const data = await jsonpRequest({ action: 'list' });
@@ -394,8 +410,10 @@ if(WEB_APP_URL.startsWith("PASTE_")){
   document.getElementById('configWarning').style.display = 'block';
   setStatus('error', 'Not configured');
 } else {
+  alert("ABOUT TO LOAD ENTRIES");
   loadEntries();
 }
+  
 })();
 </script>
 </body>
