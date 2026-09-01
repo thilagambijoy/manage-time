@@ -271,6 +271,7 @@ function jsonpRequest(params, timeoutMs = 15000){
     }, timeoutMs);
 
     window[callbackName] = (data) => {
+      alert("JSONP DATA RECEIVED");
     if(settled) return;
 
     alert("JSONP received successfully");
@@ -279,9 +280,12 @@ function jsonpRequest(params, timeoutMs = 15000){
     cleanup();
     resolve(data);
     };
-
+    alert("CALLBACK REGISTERED");
     script.onerror = () => {
+      alert("SCRIPT ERROR");
       if(settled) return;
+      alert("JSONP TIMEOUT");
+
       settled = true;
       cleanup();
       reject(new Error('Script load failed'));
