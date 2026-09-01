@@ -260,57 +260,7 @@ function debugLog(msg) {
 }
   
 let jsonpCounter = 0;
-/*function jsonpRequest(params, timeoutMs = 15000){
-  alert("JSONP FUNCTION ENTERED");
-  return new Promise((resolve, reject) => {
-    alert("PROMISE STARTED");
-    jsonpCounter += 1;
-    const callbackName = `__timeLedgerCb${Date.now()}_${jsonpCounter}`;
-     alert("CALLBACK NAME: " + callbackName);
-    const query = new URLSearchParams({ ...params, callback: callbackName }).toString();
-    alert("QUERY CREATED: " + query);
-    const script = document.createElement('script');
-    alert("SCRIPT ELEMENT CREATED");
-    let settled = false;
 
-    const cleanup = () => {
-      delete window[callbackName];
-      script.remove();
-      clearTimeout(timer);
-    };
-
-    const timer = setTimeout(() => {
-      if(settled) return;
-      settled = true;
-      cleanup();
-      reject(new Error('Request timed out'));
-    }, timeoutMs);
-
-    window[callbackName] = (data) => {
-      alert("JSONP DATA RECEIVED");
-    if(settled) return;
-
-    alert("JSONP received successfully");
-
-    settled = true;
-    cleanup();
-    resolve(data);
-    };
-    alert("CALLBACK REGISTERED");
-    script.onerror = () => {
-      alert("SCRIPT ERROR");
-      if(settled) return;
-      alert("JSONP TIMEOUT");
-
-      settled = true;
-      cleanup();
-      reject(new Error('Script load failed'));
-    };
-
-    script.src = `${WEB_APP_URL}?${query}`;
-    document.body.appendChild(script);
-  });
-}*/
 
 function jsonpRequest(params, timeoutMs = 15000) {
 
