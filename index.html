@@ -243,8 +243,24 @@ function setStatus(state, msg){
 
 // --- JSONP helper: sidesteps Apps Script's CORS limitations by loading
 // the response through a <script> tag instead of fetch(). ---
+
+function debugLog(msg) {
+  let box = document.getElementById('debugBox');
+
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'debugBox';
+    box.style.cssText =
+      'background:#fff3cd;color:#222;padding:12px;margin:12px 0;' +
+      'font-size:13px;white-space:pre-wrap;border:1px solid #ddd;';
+    document.querySelector('.wrap').prepend(box);
+  }
+
+  box.textContent += msg + '\n';
+}
+  
 let jsonpCounter = 0;
-function jsonpRequest(params, timeoutMs = 15000){
+/*function jsonpRequest(params, timeoutMs = 15000){
   alert("JSONP FUNCTION ENTERED");
   return new Promise((resolve, reject) => {
     alert("PROMISE STARTED");
@@ -294,8 +310,106 @@ function jsonpRequest(params, timeoutMs = 15000){
     script.src = `${WEB_APP_URL}?${query}`;
     document.body.appendChild(script);
   });
-}
+}*/
 
+function jsonpRequest(params, timeoutMs = 15000) {
+
+  debugLog('1. JSONP function entered');
+
+  return new Promise((resolve, reject) => {
+
+    debugLog('2. Promise started');
+
+    jsonpCounter += 1;
+
+    const callbackName =
+      '__timeLedgerCb' + Date.now() + '_' + jsonpCounter;
+
+    debugLog('3. Callback name created: ' + callbackName);
+
+    const query =
+      'action=' + encodeURIComponent(params.action || 'list') +
+      '&callback=' + encodeURIComponent(callbackName);
+
+    debugLog('4. Query created');
+
+    const script = document.createElement('script');
+
+    debugLog('5. Script element created');
+
+    let settled = false;
+
+    debugLog('6. settled variable created');
+
+    let timer;
+
+    const cleanup = function() {
+      debugLog('cleanup called');
+
+      try {
+        delete window[callbackName];
+      } catch (e) {}
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+
+    debugLog('7. cleanup function created');
+
+    window[callbackName] = function(data) {
+
+      debugLog('8. CALLBACK EXECUTED');
+
+      if (settled) return;
+
+      settled = true;
+      cleanup();
+      resolve(data);
+    };
+
+    debugLog('9. callback registered');
+
+    script.onerror = function() {
+
+      debugLog('10. SCRIPT LOAD ERROR');
+
+      if (settled) return;
+
+      settled = true;
+      cleanup();
+      reject(new Error('Script load failed'));
+    };
+
+    debugLog('11. error handler registered');
+
+    timer = setTimeout(function() {
+
+      debugLog('12. TIMEOUT after 15 seconds');
+
+      if (settled) return;
+
+      settled = true;
+      cleanup();
+      reject(new Error('Request timed out'));
+
+    }, timeoutMs);
+
+    debugLog('13. timer started');
+
+    script.src = WEB_APP_URL + '?' + query;
+
+    debugLog('14. URL = ' + script.src);
+
+    document.body.appendChild(script);
+
+    debugLog('15. script appended to page');
+  });
+}
 async function loadEntries(){
   alert("LOAD ENTRIES STARTED");
   setStatus('saving', 'Loading…');
